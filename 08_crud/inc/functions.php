@@ -1,124 +1,136 @@
-<?php 
-define("DB_NAME","C:\\wamp64\\www\\hasin\\08_crud\\data\\db.txt");
-function seed($filename){
-    $data=array(
-        array(
-            "id"=>1,
-            "fname" =>"janantul",
-            "lname" =>"mawa",
-            "roll"  =>10,
-            "sub"   =>"economics",
-        ),
-        array(
-            "id"=>2,
-            "fname" =>"marzana",
-            "lname" =>"manni",
-            "roll"  =>11,
-            "sub"   =>"mathmatics",
-        ),
-        array(
-            "id"=>3,
-            "fname" =>"sahera",
-            "lname" =>"pritu",
-            "roll"  =>12,
-            "sub"   =>"statistics",
-        ),
-        array(
-            "id"=>4,
-            "fname" =>"mejbah",
-            "lname" =>"uddin",
-            "roll"  =>13,
-            "sub"   =>"chemisty",
-        ),
-        array(
-            "id"=>5,
-            "fname" =>"bubbul",
-            "lname" =>"akter",
-            "roll"  =>14,
-            "sub"   =>"physics",
-        ),
-        array(
-            "id"=>6,
-            "fname" =>"rasel",
-            "lname" =>"mahmud",
-            "roll"  =>15,
-            "sub"   =>"pholitical",
-        ),
-    );
-    $serialize=serialize($data);
-    file_put_contents($filename,$serialize,LOCK_EX);
-}
-
-function generateReports(){
-    $serialize=file_get_contents(DB_NAME);
-    $students=unserialize($serialize);
-?>
-<table class="table">
-    <tr>
-        <td>Name</td>
-        <td>Roll</td>
-        <td>Action</td>
-    </tr>
-    <?php 
-        foreach($students as $student){
-    ?>
-        <tr>
-            <td><?php printf("%s %s",$student["fname"],$student["lname"])?></td>
-            <td><?php printf("%s",$student["roll"])?></td>
-            <td><?php printf('<a href="index.php?task=edit&id=%1$s">Edit</a> | <a class="delete" href="index.php?task=delete&id=%1$s">Delete</a>',$student["id"])?></td>
-        </tr>
-    
-    <?php
-        }
-    ?>
-</table>
 <?php
-}
+    define("DB_NAME","C:\\wamp64\\www\\hasin\\practice\\data\\db.txt");
+    function seed(){
+        $data=array(
+            array(
+                "id"=>1,
+                "fname" =>"janantul",
+                "lname" =>"mawa",
+                "roll"  =>10,
+                "sub"   =>"economics",
+                "email" =>"mawa@gmail.com",
+            ),
+            array(
+                "id"=>2,
+                "fname" =>"marzana",
+                "lname" =>"manni",
+                "roll"  =>11,
+                "sub"   =>"mathmatics",
+                "email" =>"manni@gmail.com",
+            ),
+            array(
+                "id"=>3,
+                "fname" =>"sahera",
+                "lname" =>"pritu",
+                "roll"  =>12,
+                "sub"   =>"statistics",
+                "email" =>"pritu@gmail.com",
+            ),
+            array(
+                "id"=>4,
+                "fname" =>"mejbah",
+                "lname" =>"uddin",
+                "roll"  =>13,
+                "sub"   =>"chemisty",
+                "email" =>"meju@gmail.com",
+            ),
+            array(
+                "id"=>5,
+                "fname" =>"bubbul",
+                "lname" =>"akter",
+                "roll"  =>14,
+                "sub"   =>"physics",
+                "email" =>"setu@gmail.com",
+            ),
+            array(
+                "id"=>6,
+                "fname" =>"rasel",
+                "lname" =>"mahmud",
+                "roll"  =>15,
+                "sub"   =>"pholitical",
+                "email" =>"rasel@gmail.com",
+            ),
+        );
+        $serialize=serialize($data);
+        file_put_contents(DB_NAME,$serialize);
+    }
 
-function addStudent($fname,$lname,$roll,$subject){
+    function generateReports(){
+        $getData=file_get_contents(DB_NAME);
+        $students=unserialize($getData);
+?>
+<table class="table table-info">
+    <thead>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Roll</th>
+        <th>Subject</th>
+        <th>Email</th>
+        <th>Action</th>
+    </thead>
+    <tbody>
+<?php foreach($students as $student){?>
+    <tr>
+        <td><?php printf("%s",$student["id"])?></td>
+        <td><?php printf("%s %s",$student["fname"],$student["lname"])?></td>
+        <td><?php printf("%s",$student["roll"])?></td>
+        <td><?php printf("%s",$student["sub"])?></td>
+        <td><?php printf("%s",$student["email"])?></td>
+        <td><?php printf('<a class="btn btn-success" href="index.php?task=edit&id=%1$s">Edit</a><a class="btn btn-danger delete" href="index.php?task=delete&id=%1$s">Delete</a>',$student["id"])?></td>
+    </tr>
+<?php }?> 
+    </tbody>
+</table>
+
+<?php 
+    }
+
+function addStudent($fname,$lname,$roll,$subject,$email){
     $found=false;
-    $serialize=file_get_contents(DB_NAME);
-    $students=unserialize($serialize);
-    foreach($students as $_student){
-        if ($_student['roll'] == $roll) {
+    $getData=file_get_contents(DB_NAME);
+    $students=unserialize($getData);
+    foreach($students as $student){
+        if ($student['roll']==$roll) {
             $found=true;
-            break;
         }
     }
     if (!$found) {
-        $newId=getNewId($students);
-        $student=array(
-            "id"    =>$newId,
+        $newStudent=array(
+            "id"    =>getNewId($students),
             "fname" =>$fname,
             "lname" =>$lname,
             "roll"  =>$roll,
             "sub"   =>$subject,
+            "email" =>$email,
         );
-        array_push($students,$student);
-        $serialize=serialize($students);
-        file_put_contents(DB_NAME,$serialize,LOCK_EX);
-        return true;
+    array_push($students,$newStudent);
+    $serialze=serialize($students);
+    file_put_contents(DB_NAME,$serialze);
+    return true;
     }
-    return false;
+   return false;
 }
-
+function getNewId($students){
+    $maxId=max(array_column($students,"id"));
+    return $maxId+1;
+}
 function getStudent($id){
-    $serialize=file_get_contents(DB_NAME);
-    $students=unserialize($serialize);
+    $getData=file_get_contents(DB_NAME);
+    $students=unserialize($getData);
     foreach($students as $student){
-        if ($student['id'] == $id) {
+        if ($student['id']==$id) {
             return $student;
         }
     }
     return false;
 }
 
-function updateStudent($id,$fname,$lname,$roll,$subject){
+function updateStudent($id,$fname,$lname,$roll,$subject,$email){
     $found=false;
-    $serialize=file_get_contents(DB_NAME);
-    $students=unserialize($serialize);
+    $getData=file_get_contents(DB_NAME);
+    $students=unserialize($getData);
     foreach($students as $_student){
-        if ($_student['roll'] == $roll && $_student['id']!=$id) {
+        if ($_student['roll']==$roll && $_student['id'] !=$id) {
             $found=true;
             break;
         }
@@ -128,37 +140,23 @@ function updateStudent($id,$fname,$lname,$roll,$subject){
         $students[$id-1]['lname']   =$lname;
         $students[$id-1]['roll']    =$roll;
         $students[$id-1]['sub']     =$subject;
-        $serializeData=serialize($students);
-        file_put_contents(DB_NAME,$serializeData,LOCK_EX);
+        $students[$id-1]['email']   =$email;
+        $serialize=serialize($students);
+        file_put_contents(DB_NAME,$serialize,LOCK_EX);
         return true;
     }
     return false;
 }
 
 function deleteStudent($id){
-    $serialize=file_get_contents(DB_NAME);
-    $students=unserialize($serialize);
-    foreach($students as $offset=>$student){
-        if($student['id']==$id){
-            unset($students[$offset]);
+    $getData=file_get_contents(DB_NAME);
+    $students=unserialize($getData);
+    foreach($students as $key =>$student){
+        if ($student['id'] == $id) {
+            unset($students[$key]);
         }
     }
-    $serializeData=serialize($students);
-    file_put_contents(DB_NAME,$serializeData,LOCK_EX);
-}
-
-function printArray(){
-    $serialize=file_get_contents(DB_NAME);
-    $students=unserialize($serialize);
-    print_r($students);
-}
-
-function getNewId($students){
-    $maxId=max(array_column($students,'id'));
-    return $maxId+1;
+    $serialize=serialize($students);
+    file_put_contents(DB_NAME,$serialize,LOCK_EX);
 }
 ?>
-
-
-
-

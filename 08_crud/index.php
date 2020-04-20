@@ -1,48 +1,52 @@
 <?php 
 require_once("inc/functions.php");
-$task=$_GET['task'] ?? 'report';
-$error=$_GET['error'] ?? '0';
+$task   =$_GET["task"] ?? "report";
+$error  =$_GET["error"] ?? "0";
+$delete  ="";
 $info="";
-if('delete'==$task){
-  $id=filter_input(INPUT_GET,'id',FILTER_SANITIZE_STRING);
-  if ($id >0) {
-    deleteStudent($id);
-    header("location:index.php?task=report");
-  }
+if("seed"==$task){
+    seed();
+    $info="seeding is complete";
 }
-if('seed' ==$task){
-  seed(DB_NAME);
-  $info="seeding is complete";
+if("delete"==$task){
+    $id=filter_input(INPUT_GET,'id',FILTER_SANITIZE_STRING);
+    if ($id >0) {
+        deleteStudent($id);
+        header("location:index.php?task=report"); 
+    }
 }
-$fname=$lname=$roll=$subject="";
-if(isset($_POST['submit'])){
-  $fname=filter_input(INPUT_POST,'fname',FILTER_SANITIZE_STRING);
-  $lname=filter_input(INPUT_POST,'lname',FILTER_SANITIZE_STRING);
-  $roll=filter_input(INPUT_POST,'roll',FILTER_SANITIZE_STRING);
-  $subject=filter_input(INPUT_POST,'subject',FILTER_SANITIZE_STRING);
-  $id=filter_input(INPUT_POST,'id',FILTER_SANITIZE_STRING);
+$fname=$lname=$roll=$subject=$email="";
+if(isset($_POST["submit"])){
+    $fname=filter_input(INPUT_POST,'fname',FILTER_SANITIZE_STRING);
+    $lname=filter_input(INPUT_POST,'lname',FILTER_SANITIZE_STRING);
+    $roll=filter_input(INPUT_POST,'roll',FILTER_SANITIZE_STRING);
+    $subject=filter_input(INPUT_POST,'subject',FILTER_SANITIZE_STRING);
+    $email=filter_input(INPUT_POST,'email',FILTER_SANITIZE_STRING);
+    $id=filter_input(INPUT_POST,'id',FILTER_SANITIZE_STRING);
+    if ($id) {
+        if ($fname !="" && $lname !="" && $roll !="" && $subject != "" && $email !="") {
+            $result=updateStudent($id,$fname,$lname,$roll,$subject,$email);
+            if ($result) {
+                header("location:index.php?task=report");
+            }else{
+                $error=1;
+            }
+        }
+    }else{
+        if ($fname !="" && $lname !="" && $roll !="" && $subject != "" && $email !="") {
+            $result=addStudent($fname,$lname,$roll,$subject,$email);
+            if ($result) {
+                header("location:index.php?task=report");
+            }else{
+                $error=1;
+            }
+        }
+    }
+    
+}
 
-  if ($id) {
-    if($fname!="" && $lname !="" && $roll !="" && $subject !=""){
-      $result=updateStudent($id,$fname,$lname,$roll,$subject);
-      if ($result) {
-        header("location:index.php?task=report");
-      }else {
-        $error=1;
-      }
-    }
-  }else{
-    if($fname!="" && $lname !="" && $roll !="" && $subject !=""){
-      $result=addStudent($fname,$lname,$roll,$subject);
-      if ($result) {
-        header("location:index.php?task=report");
-      }else {
-        $error=1;
-      }
-    }
-  }
-  
-}
+
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -53,54 +57,32 @@ if(isset($_POST['submit'])){
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-
+    <link rel="stylesheet" href="assets/css/style.css">
     <title>Crud</title>
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center">CRUD project</h1>
-      <p>This is our first create,read,update and delete project</p>
-        <div class="row">
-          <div class="col-md-2"></div>
-          <div class="col-md-8">
-            <?php include_once("inc/templates/nav.php")?>
-            <hr/>
-            <?php 
-              if($info != ""){
-                echo "<p>{$info}</p>";
-              }
-            ?>
-          </div>
-          <div class="col-md-2">
-          </div>
+        <div class="head text-center">
+            <h2>CRUD Project</h2>
+            <p class="text-dark seed">This is my first crud project.I don't use database here.I store all record in a text file</p>
+            <?php include_once('inc/templates/nav.php')?>
         </div>
-        <?php if('1' ==$error){ ?>
-          <div class="row">
-            <div class=col=md=12>
-              <blockquote class="blockquote">
-                <p class="mb-0">Duplicate Roll number</p>
-              </blockquote>
-            </div>
-          </div>
-        <?php }?>
-        <?php if("report" ==$task){?>
-          <div class="row">
+        <p class="text-success seed"><?php if($info!=""){echo "{$info}";}?></p> 
+        <?php if ("1" ==$error) {
+            echo '<p class="text-danger alert">You might be doing somethong wrong.please check your value again.specially roll and email.duplicate roll and email not allow</p>';
+        }?> 
+    
+        
+         <?php if("report" ==$task){?>
+        <div class="row">
             <div class="col-md-2"></div>
             <div class="col-md-8">
-                <?php generateReports()?>
-                <div>
-                  <blockquote class="blockquote">
-                    <pre>
-                      <?php printArray();?>
-                    </pre>
-                  </blockquote>
-                  
-                </div>
+            <?php if ($delete !=""){echo '<p class="text-success ">successfully Delete</p>';}?>  
+            <?php generateReports()?>
             </div>
             <div class="col-md-2"></div>
-          </div>
-        <?php }?>
-
+        </div>
+         <?php }?>
         <?php if("add" ==$task){?>
           <div class="row">
             <div class="col-md-2"></div>
@@ -118,22 +100,30 @@ if(isset($_POST['submit'])){
               <div class="form-group">
                 <input type="text" class="form-control" name="subject" value="<?php echo $subject?>" placeholder="subject">
               </div>
+              <div class="form-group">
+                <input type="email" class="form-control" name="email" value="<?php echo $email?>" placeholder="Enter Your Email">
+              </div>
               <button type="submit" class="btn btn-primary" name="submit">Submit</button>
             </form>
             </div>
             <div class="col-md-2"></div>
           </div>
         <?php }?>
-        <?php if("edit" ==$task){
-          $id=filter_input(INPUT_GET,"id",FILTER_SANITIZE_STRING);
-          $student=getStudent($id);
-          if ($student):
-          ?>
+        <?php 
+            if("edit" ==$task){
+            $id=filter_input(INPUT_GET,"id",FILTER_SANITIZE_STRING);
+            $student=getStudent($id);
+            if ($student) {
+           
+        ?>
           <div class="row">
             <div class="col-md-2"></div>
             <div class="col-md-8">
-            <form method="post" >
-              <input type="hidden" name="id" value="<?php echo $id?>"/>
+            <form method="post">
+                <input type="hidden" name="id" value="<?php echo $id?>"/>
+              <div class="form-group">
+                <input type="text" class="form-control" name="id" value="<?php echo $student['id']?>" disabled>
+              </div>
               <div class="form-group">
                 <input type="text" class="form-control" name="fname" value="<?php echo $student['fname']?>" placeholder="First Name">
               </div>
@@ -146,19 +136,20 @@ if(isset($_POST['submit'])){
               <div class="form-group">
                 <input type="text" class="form-control" name="subject" value="<?php echo $student['sub']?>" placeholder="subject">
               </div>
-              <button type="submit" class="btn btn-primary" name="submit">Update</button>
+              <div class="form-group">
+                <input type="email" class="form-control" name="email" value="<?php echo $student['email']?>" placeholder="Enter Your Email">
+              </div>
+              <button type="submit" class="btn btn-primary" name="submit">Submit</button>
             </form>
             </div>
             <div class="col-md-2"></div>
           </div>
-          <?php 
-          endif;
-        }?>
-
-
+        <?php 
+            }
+        }
+    ?>
     </div>
- 
-
+    
     
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" "></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" ></script>
