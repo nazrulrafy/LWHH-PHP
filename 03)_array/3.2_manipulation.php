@@ -1,0 +1,19 @@
+<?php 
+/*
+delete
+    array_pop()
+    array_shift()
+*/
+/*
+insert
+    array_push()
+    array_unshift()
+*/
+$persons=array("Jannat","Manni","Pritu","Maisa","Samiya");
+$persons[2]="sahera";
+$pop=array_shift($persons);
+array_push($persons,"Bulbul");
+array_unshift($persons,"Taiba");
+for($i=0;$i<count($persons);$i++){
+    echo $persons[$i].PHP_EOL;
+}

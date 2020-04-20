@@ -1,0 +1,1 @@
+[{"fname":"sahera","lname":"pritu","age":25,"sub":"economics","roll":57},{"fname":"marzana","lname":"manni","age":26,"sub":"mathmatics","roll":85},{"fname":"jannatul","lname":"mawa","age":27,"sub":"statistics","roll":51}]
